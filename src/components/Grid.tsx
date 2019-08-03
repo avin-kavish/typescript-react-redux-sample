@@ -14,11 +14,11 @@ export const Row = styled.div<{ gutter?: number }>`
   margin-right:  ${props => props.gutter ? -props.gutter / 2 : -halfGutter}px;
 `
 
-export const Col = styled.div<{ grow?: boolean, size?: number }>`
+export const Col = styled.div<{ grow?: boolean, shrink?: boolean, size?: number }>`
   padding-left: ${halfGutter}px;
   padding-right: ${halfGutter}px;
   flex-grow: ${props => props.grow ? 1 : 0};
-  flex-shrink: 0;
+  flex-shrink: ${props => props.shrink ? 1 : 0};
   flex-basis: ${props => props.size ? percentage(props.size / defaults.columns) : 'auto'};
   max-width: ${props => props.size ? percentage(props.size / defaults.columns) :  '100%'};
 `

@@ -17,17 +17,17 @@ export default function SearchBox() {
             <InputBox placeholder="All States"/>
           </Col>
         </Row>
-        <Row>
+        <Row css={css`flex-wrap: nowrap;`}>
           <Col size={3}>
             <InputBox placeholder="All Categories"/>
           </Col>
           <Col size={4}>
             <InputBox placeholder="Search By Question Group"/>
           </Col>
-          <Col size={2}>
+          <Col grow shrink>
             <InputBox placeholder="Status"/>
           </Col>
-          <Col grow>
+          <Col grow shrink>
             <InputBox placeholder="Display"/>
           </Col>
           <Col>

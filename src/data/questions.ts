@@ -10,11 +10,14 @@ export interface Question {
 }
 
 export const questions: Question[] = [
-    ...Array(5).fill({
+  ...Array(5).fill({
     id: 57515,
     question: 'Do you keep all surveillance recordings for at least 90 calendar days?',
     category: 'Company Policy',
-    questionGroup: ['A name of the question group'],
+    questionGroup: [
+      'A name of the question group',
+      'Another name of a question group'
+    ],
     license: [
       'A: Type  01 = Cultivation; Specialty Outdoor',
       'A: Type  01A = Cultivation; Specialty Indoor',
@@ -23,5 +26,44 @@ export const questions: Question[] = [
     state: 'CA',
     status: 'Active',
     display: 'Draft',
-  })
+  }).map((q: Question) => ({...q, display: Math.random() < 0.6 ? 'Published' : 'Draft'}))
+]
+
+export const questionCols = [
+  {
+    label: '#',
+    key: 'id'
+  },
+  {
+    label: 'Question',
+    key: 'question'
+  },
+  {
+    label: 'Category',
+    key: 'question'
+  },
+  {
+    label: 'State',
+    key: 'question'
+  },
+  {
+    label: 'Question Group',
+    key: 'question'
+  },
+  {
+    label: 'License',
+    key: 'question'
+  },
+  {
+    label: 'Status',
+    key: 'question'
+  },
+  {
+    label: 'Display',
+    key: 'display'
+  },
+  {
+    label: 'Action',
+    key: 'action'
+  },
 ]

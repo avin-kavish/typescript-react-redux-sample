@@ -1,5 +1,5 @@
 import React, {Suspense, lazy} from 'react';
-import {GlobalCss} from './styles';
+import {globalCss} from './styles';
 import {hot} from 'react-hot-loader/root';
 import {Global} from '@emotion/core';
 import {FullWidthLayout} from './layouts';
@@ -14,7 +14,7 @@ function App() {
 
   return (
       <>
-        <Global styles={GlobalCss}/>
+        <Global styles={globalCss}/>
         <Router>
         <FullWidthLayout>
           <Suspense fallback={<LoadingScreen />}>

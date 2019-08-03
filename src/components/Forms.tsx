@@ -6,5 +6,6 @@ export const InputBox = styled.input`
   border:1px solid #e7e8ea;
   border-radius: 4px;
   background-color: #f7f8fc;
+  min-width: 0;
   width: 100%;
 `
