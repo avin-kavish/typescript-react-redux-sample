@@ -9,27 +9,29 @@ import {routes} from './routes';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faSpinner} from '@fortawesome/free-solid-svg-icons';
 import {Centered} from './components';
+import {Provider} from 'react-redux';
+import store from './state/store';
 
 function App() {
 
   return (
-      <>
+      <Provider store={store}>
         <Global styles={globalCss}/>
         <Router>
         <FullWidthLayout>
           <Suspense fallback={<LoadingScreen />}>
           <Switch>
           <Route exact path="/" component={Home}/>
-          <Route path={routes.customQuestionManager} component={LazyCustomQuestionManager}/>
+          <Route path={routes.customQuestionManager} component={LazyQuestionManager}/>
           </Switch>
           </Suspense>
         </FullWidthLayout>
         </Router>
-      </>
+      </Provider>
   )
 }
 
-const LazyCustomQuestionManager = lazy(() => import('./routes/custom-question-manager/CustomQuestionManager'))
+const LazyQuestionManager = lazy(() => import('./routes/custom-question-manager/CustomQuestionManager'))
 
 function LoadingScreen() {
 

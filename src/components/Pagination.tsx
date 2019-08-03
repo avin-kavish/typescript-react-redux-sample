@@ -4,7 +4,7 @@ import styled from '@emotion/styled';
 import {theme} from '../styles';
 import {InputBox} from './Forms';
 
-type PagerProps = {
+export type PagerProps = {
   maxPages?: number
   total: number
   perPage: number
@@ -12,13 +12,22 @@ type PagerProps = {
   onChange: (newPage: number) => void
 }
 
-export function Pager({}: PagerProps) {
+export function Pager({total, perPage, current, onChange}: PagerProps) {
+  const pages = Math.ceil(total / perPage)
+  const mapHelper = Array(pages || 1).fill(0).map((_, i) => i + 1)
 
   return (
       <FlexBox>
         <DirectionButton>{'< Back'}</DirectionButton>
-        <PageButton active>1</PageButton>
-        <PageButton>2</PageButton>
+        {mapHelper.map(page =>
+            <PageButton
+                key={page}
+                active={current === page}
+                onClick={() => onChange(page)}
+            >
+              {page}
+            </PageButton>
+        )}
         <DirectionButton>{'Next >'}</DirectionButton>
       </FlexBox>
   )
@@ -38,7 +47,7 @@ const PageButton = styled.div<{ active?: boolean }>`
   cursor:pointer;
 `
 
-type PageCountProps = {
+export type PageCountProps = {
   value: number
   onChange: (value: number) => void
 }
@@ -48,7 +57,7 @@ export function PageCount({value, onChange}: PageCountProps) {
   return (
       <div>
         Show
-        <TinyInput/>
+        <TinyInput value={value}/>
         items
       </div>
   )

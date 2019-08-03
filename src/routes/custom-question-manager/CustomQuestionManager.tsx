@@ -3,8 +3,8 @@ import {Card} from '../../components';
 import {css} from '@emotion/core';
 import SearchBox from './SearchBox';
 import Header from './Header';
-import {DataTable} from './DataTable';
-import {ActionBar} from './ActionBar';
+import DataTable from './DataTable';
+import ActionBar from './ActionBar';
 
 export default function CustomQuestionManager() {
 

@@ -1,8 +1,15 @@
-import {Button, Card, Col, InputBox, Row} from '../../components';
+import {Button, Card, Col, InputBox, Row, SelectBox} from '../../components';
 import {css} from '@emotion/core';
 import React from 'react';
+import {licences} from '../../data/licences';
+import {Select, useManagedSelect, useSelect} from '../../components/Select';
 
 export default function SearchBox() {
+  const licenseProps = useManagedSelect({ initialValue: null, values: licences, labelFn: v => v, })
+  const stateProps = useManagedSelect({ initialValue: null, values: [], labelFn: v => v })
+  const categoryProps = useManagedSelect({ initialValue: null, values: [], labelFn: v => v })
+  const statusProps = useManagedSelect({ initialValue: null, values: [], labelFn: v => v })
+  const displayProps = useManagedSelect({ initialValue: null, values: [], labelFn: v => v })
 
   return (
       <Card css={css`margin-bottom: 24px;`}>
@@ -11,35 +18,36 @@ export default function SearchBox() {
             <InputBox placeholder="Search by Question"/>
           </Col>
           <Col size={3}>
-            <InputBox placeholder="License"/>
+            <Select {...licenseProps} placeholder="License" />
           </Col>
           <Col size={2}>
-            <InputBox placeholder="All States"/>
+            <Select {...stateProps} placeholder="All States"/>
           </Col>
         </Row>
         <Row css={css`flex-wrap: nowrap;`}>
           <Col size={3}>
-            <InputBox placeholder="All Categories"/>
+            <Select {...categoryProps} placeholder="All Categories"/>
           </Col>
           <Col size={4}>
             <InputBox placeholder="Search By Question Group"/>
           </Col>
           <Col grow shrink>
-            <InputBox placeholder="Status"/>
+            <Select {...statusProps} placeholder="Status"/>
           </Col>
           <Col grow shrink>
-            <InputBox placeholder="Display"/>
+            <Select {...displayProps} placeholder="Display"/>
           </Col>
           <Col>
-            <SearchButton/>
+            <SearchButton onClick={() => alert('no-op')}/>
           </Col>
         </Row>
       </Card>
   )
 }
 
-const SearchButton = (props: any) => (
+const SearchButton = (props: JSX.IntrinsicElements['button']) => (
     <Button
+        {...props}
         style="primary"
         css={css`height: 100%;width:100%;font-size: 18px; font-weight: 600;`}
     >

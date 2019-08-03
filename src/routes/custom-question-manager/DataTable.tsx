@@ -9,9 +9,14 @@ import {IconProp} from '@fortawesome/fontawesome-svg-core'
 import React from 'react'
 import {FlexBox} from '../../components'
 import {Table} from '../../components/Table'
+import { connect } from 'react-redux'
+import {RootState} from '../../state/store';
 
+type DataTableProps = {
+  questions: Question[]
+}
 
-export function DataTable() {
+function DataTable({ questions }: DataTableProps) {
 
   return (
       <Table
@@ -21,6 +26,8 @@ export function DataTable() {
       />
   )
 }
+
+export default connect((state: RootState) => ({ questions: state.questions.questions }))(DataTable)
 
 const renderRow = (data: Question) => (
     <tr>

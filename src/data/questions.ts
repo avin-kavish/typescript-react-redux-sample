@@ -10,7 +10,7 @@ export interface Question {
 }
 
 export const questions: Question[] = [
-  ...Array(5).fill({
+  ...Array(15).fill({
     id: 57515,
     question: 'Do you keep all surveillance recordings for at least 90 calendar days?',
     category: 'Company Policy',
@@ -26,7 +26,7 @@ export const questions: Question[] = [
     state: 'CA',
     status: 'Active',
     display: 'Draft',
-  }).map((q: Question) => ({...q, display: Math.random() < 0.6 ? 'Published' : 'Draft'}))
+  }).map((q: Question, i) => ({...q, id: q.id + i, display: Math.random() < 0.6 ? 'Published' : 'Draft'}))
 ]
 
 export const questionCols = [
@@ -67,3 +67,15 @@ export const questionCols = [
     key: 'action'
   },
 ]
+
+
+export function filterQuestions(param: Partial<Record<keyof Question, string>>, page: number, perPage: number) {
+  const filters = Object.entries(param)
+
+  const filtered = questions
+      .filter(q => filters.reduce((acc, [key, value]) => acc && q[key] === value, true))
+  return {
+    questions: filtered.slice((page - 1) * perPage, page * perPage),
+    total: filtered.length
+  }
+}

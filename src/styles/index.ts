@@ -5,9 +5,11 @@ export const theme = {
   yellow: '#FEBF00',
   background: {
     body: '#f2f3f8',
+    input: '#f7f8fc',
     td: '#fafcfb'
   },
   border: {
+    input: '#e7e8ea',
     popup: '#e5e6ea'
   },
   text: {
