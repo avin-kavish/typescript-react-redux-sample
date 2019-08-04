@@ -101,13 +101,14 @@ const StyledTable = styled.table`
   table-layout: auto;
 
   th,td {
-    padding: 24px 16px;
+    padding: 16px 16px;
   }
 
   th {
     padding-top: 12px;
     text-align: left;
     color: #808c9a;
+    white-space: nowrap;
   }
 
   tbody td {

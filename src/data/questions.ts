@@ -54,7 +54,7 @@ export const questionCols: ColumnDef<Question>[] = [
   {
     label: 'Display',
     key: 'display',
-    sortable: false
+    sortable: true
   },
   {
     label: 'Action',
@@ -67,6 +67,7 @@ export const questionCols: ColumnDef<Question>[] = [
  * CODE FOR MOCKING BACKEND
  * No coding standards followed
  * Fake Logic to support CRUD operations on Questions
+ * This code is hard to read, it is only for testing purposes
  */
 
 const categories = [
@@ -103,7 +104,6 @@ export const questions: Question[] = Array(50).fill({
   status: Math.random() < 0.7 ? 'Active' : 'Inactive'
 }))
 
-// This code is not the clearest to read, it is only for testing purposes
 export function filterQuestions(param: Partial<Record<keyof Question, string>>, page: number, perPage: number, sort?: SortType<Question>) {
   const filters = Object.entries(param || {})
 
@@ -140,7 +140,6 @@ function CompareAny(val1: any, val2: any) {
     return 0
 }
 
-// This code is not the clearest to read, it is only for testing purposes
 export function makeConstraints() {
   const constraints: Filters = questions.reduce((acc, q) => {
     Object.entries(q).forEach(([key, value]) => {

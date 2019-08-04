@@ -70,7 +70,7 @@ const renderRow = (data: Question) => (
     <tr key={data.id}>
       <td>{data.id}</td>
       <td css={css`width: 100%;`}>{data.question}</td>
-      <td>{data.category}</td>
+      <td css={css`white-space: nowrap;`}>{data.category}</td>
       <td>{data.state}</td>
       <td>
         <ViewPopup>

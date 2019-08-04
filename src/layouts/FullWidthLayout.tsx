@@ -4,8 +4,8 @@ import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faBars, faBell, faInfoCircle} from '@fortawesome/free-solid-svg-icons';
 import {css} from '@emotion/core';
 import React, {PropsWithChildren} from 'react';
-import {FlexBox, FlexSpacer} from '../components';
-import {Link} from 'react-router-dom';
+import {FlexSpacer} from '../components';
+import {Link, NavLink} from 'react-router-dom';
 import {theme} from '../styles';
 
 export function FullWidthLayout({children}: PropsWithChildren<{}>) {
@@ -16,7 +16,7 @@ export function FullWidthLayout({children}: PropsWithChildren<{}>) {
         <Main>
           {children}
         </Main>
-        <Footer />
+        <Footer/>
       </LayoutWrapper>
   )
 }
@@ -70,7 +70,9 @@ const HeaderItem = styled.div<{ noHover?: boolean }>`
 function Logo() {
 
   return (
-      <LogoImg src={logo}/>
+      <NavLink to="/">
+        <LogoImg src={logo}/>
+      </NavLink>
   )
 }
 
@@ -81,10 +83,30 @@ const LogoImg = styled.img`
 export function Notifications() {
 
   return (
-      <FontAwesomeIcon
-          icon={faBell}
-          css={css`font-size: 22px;`}
-      />
+      <div css={css`position: relative;`}>
+        <FontAwesomeIcon
+            icon={faBell}
+            css={css`font-size: 22px;`}
+        />
+        <svg
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+            css={css`position: absolute; top: 0; right: -5px; width:15px; height: 15px;`}
+        >
+          <circle
+              cx="12"
+              cy="12"
+              r="12"
+              fill="white"
+          />
+          <circle
+              cx="12"
+              cy="12"
+              r="7"
+              fill="#00d662"
+          />
+        </svg>
+      </div>
   )
 }
 
@@ -113,9 +135,10 @@ function Footer() {
   return (
       <StyledFooter>
         <div>Copyright &copy; 2016-18, Simplifiya, LLC. All Rights Reserved.</div>
-        <FlexSpacer />
+        <FlexSpacer/>
         <FooterLink to={''}>
-          <FontAwesomeIcon icon={faInfoCircle} css={css`margin-right: 8px;`} />
+          <FontAwesomeIcon icon={faInfoCircle}
+                           css={css`margin-right: 8px;`}/>
           Privacy Policy
         </FooterLink>
         |

@@ -5,7 +5,7 @@
   "main": "no",
   "scripts": {
     "client:dev": "webpack-dev-server --config ./webpack.dev.js",
-    "server:dev": "nodemon --watch 'src/**/*.ts' --exec 'ts-node -T --skip-project' src/server.ts"
+    "server:dev": "nodemon --watch 'src/server.ts' --watch 'src/data/**/*' --exec 'ts-node -T --skip-project' src/server.ts"
   },
   "author": "Avin Kavish",
   "license": "MIT",
