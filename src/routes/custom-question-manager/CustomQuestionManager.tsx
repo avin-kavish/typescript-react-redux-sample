@@ -6,7 +6,7 @@ import Header from './Header';
 import DataTable from './DataTable';
 import ActionBar from './ActionBar';
 
-export default function CustomQuestionManager() {
+export function CustomQuestionManager() {
 
   return (
       <>

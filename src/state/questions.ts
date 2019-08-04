@@ -1,15 +1,19 @@
-import {filterQuestions, Question, questions as questionSource} from '../data/questions';
+import {Question, questions as questionSource} from '../data/questions';
 import {Epic} from 'redux-observable';
-import {filter, map} from 'rxjs/operators';
+import {catchError, delay, filter, map, switchMap, tap} from 'rxjs/operators';
 import {isOfType} from 'typesafe-actions';
 import {RootState} from './store';
+import {ajax} from 'rxjs/ajax';
+import {of} from 'rxjs';
+import {debug} from '../utilities';
 
 export const SEARCH_QUESTIONS = 'questions/SEARCH'
+export const SORT = 'questions/SORT'
 export const CHANGE_PER_PAGE = 'questions/CHANGE_PER_PAGE'
 export const CHANGE_PAGE = 'questions/CHANGE_PAGE'
 export const BEGIN_FETCH = 'questions/BEGIN_FETCH'
 export const FETCH_SUCCESS = 'questions/FETCH_SUCCESS'
-export const FETCH_ERROR = 'questions/FETCH_ERROR'
+export const FETCH_FAILURE = 'questions/FETCH_ERROR'
 
 interface SearchQuestionsAction {
   type: typeof SEARCH_QUESTIONS
@@ -26,9 +30,17 @@ interface ChangePageAction {
   payload: number
 }
 
+export type SortDirection = 'asc' | 'desc' | 'none'
+export type SortType<T = Question> = [keyof T, SortDirection]
+
+interface SortAction {
+  type: typeof SORT
+  payload: SortType
+}
+
 interface BeginFetchAction {
   type: typeof BEGIN_FETCH
-  payload: { filters: SearchFilters, page: number, perPage: number }
+  payload: Partial<{ filters: SearchFilters, page: number, perPage: number, sort: SortType }>
 }
 
 interface FetchSuccessAction {
@@ -36,14 +48,35 @@ interface FetchSuccessAction {
   payload: SearchResults
 }
 
-interface FetchErrorAction {
-  type: typeof FETCH_ERROR
-  payload: string
+interface FetchFailureAction {
+  type: typeof FETCH_FAILURE
+  payload: Error
 }
 
-export type QuestionActions = SearchQuestionsAction | ChangePerPageAction | ChangePageAction | FetchSuccessAction | FetchErrorAction
+export type QuestionActions =
+    | SearchQuestionsAction
+    | ChangePerPageAction
+    | ChangePageAction
+    | SortAction
+    | BeginFetchAction
+    | FetchSuccessAction
+    | FetchFailureAction
 
-type SearchFilters = Partial<Record<keyof Question, string>>
+export const searchQuestions = (payload: SearchFilters): SearchQuestionsAction => ({type: SEARCH_QUESTIONS, payload});
+
+export const changePage = (payload: number): ChangePageAction => ({type: CHANGE_PAGE, payload});
+
+export const changePerPage = (payload: number): ChangePerPageAction => ({type: CHANGE_PER_PAGE, payload});
+
+export const sortQuestions = (payload: SortType): SortAction => ({type: SORT, payload});
+
+export const beginFetch = (payload: BeginFetchAction['payload']): BeginFetchAction => ({type: BEGIN_FETCH, payload})
+
+export const fetchSuccess = (payload: SearchResults): FetchSuccessAction => ({type: FETCH_SUCCESS, payload});
+
+export const fetchFailure = (payload: Error): FetchFailureAction => ({type: FETCH_FAILURE, payload})
+
+export type SearchFilters = Partial<Record<keyof Question, string>>
 
 interface SearchResults {
   questions: Question[]
@@ -56,38 +89,36 @@ export interface QuestionState {
   page: number
   perPage: number
   filters: SearchFilters
-}
-
-export function searchQuestions(payload: SearchFilters): SearchQuestionsAction {
-  return {type: SEARCH_QUESTIONS, payload}
-}
-
-export function fetchSuccess(payload: SearchResults): FetchSuccessAction {
-  return {type: FETCH_SUCCESS, payload}
-}
-
-export function changePage(payload: number): ChangePageAction {
-  return {type: CHANGE_PAGE, payload}
+  sort: SortType
+  isLoading: boolean
 }
 
 const initialState: QuestionState = {
-  questions: questionSource.slice(0, 5),
-  total: questionSource.length,
+  questions: [],
+  total: 0,
   page: 1,
   perPage: 5,
-  filters: {}
+  filters: {},
+  sort: null,
+  isLoading: false
 }
 
 export default function reducer(state: QuestionState = initialState, action: QuestionActions): QuestionState {
   switch (action.type) {
     case SEARCH_QUESTIONS:
-      return state
+      return {...state, filters: action.payload}
+    case SORT:
+      return {...state, sort: action.payload}
     case CHANGE_PAGE:
       return {...state, page: action.payload}
     case CHANGE_PER_PAGE:
       return {...state, perPage: action.payload}
+    case BEGIN_FETCH:
+      return {...state, isLoading: true}
     case FETCH_SUCCESS:
-      return {...state, ...action.payload}
+      return {...state, ...action.payload, isLoading: false}
+    case FETCH_FAILURE:
+      return {...state, isLoading: false}
     default:
       return state
   }
@@ -98,31 +129,54 @@ type QuestionEpic = Epic<QuestionActions, QuestionActions, RootState>
 export const searchEpic: QuestionEpic = (action$, state$) =>
     action$.pipe(
         filter(isOfType(SEARCH_QUESTIONS)),
-        map(action => {
-          const {page, perPage} = state$.value.questions
-          return filterQuestions(action.payload, page, perPage)
-        }),
-        map(value => fetchSuccess(value))
+        map(action => beginFetch({filters: action.payload}))
     )
 
 export const changePageEpic: QuestionEpic = (action$, state$) =>
     action$.pipe(
         filter(isOfType(CHANGE_PAGE)),
-        map(action => {
-          const {filters, perPage} = state$.value.questions
-          return filterQuestions(filters, action.payload, perPage)
-        }),
-        map(value => fetchSuccess(value))
+        map(action => beginFetch({page: action.payload}))
     )
 
 export const changePerPageEpic: QuestionEpic = (action$, state$) =>
     action$.pipe(
         filter(isOfType(CHANGE_PER_PAGE)),
-        map(action => {
-          const {filters, page} = state$.value.questions
-          return filterQuestions(filters, page, action.payload)
-        }),
-        map(value => fetchSuccess(value))
+        map(action => beginFetch({perPage: action.payload}))
     )
 
-export const questionEpics = [searchEpic, changePageEpic, changePerPageEpic]
+export const sortEpic: QuestionEpic = (action$, state$) =>
+    action$.pipe(
+        filter(isOfType(SORT)),
+        tap(v => console.log(v)),
+        map(action => beginFetch({sort: action.payload}))
+    )
+
+export const fetchEpic: QuestionEpic = (action$, state$) =>
+    action$.pipe(
+        filter(isOfType(BEGIN_FETCH)),
+        delay(400), // Delay to simulate network latency
+        switchMap(action => {
+              const {filters, perPage, page, sort} = state$.value.questions
+
+              return ajax({
+                url: `http://localhost:3000/questions`,
+                method: 'post',
+                body: {filters, perPage, page, sort, ...action.payload},
+                headers: {'Content-type': 'application/json'}
+              })
+                  .pipe(
+                      debug(),
+                      map(res => fetchSuccess(res.response)),
+                      catchError(err => of(fetchFailure(err)))
+                  )
+            }
+        )
+    )
+
+export const questionEpics = [
+  searchEpic,
+  changePageEpic,
+  changePerPageEpic,
+  sortEpic,
+  fetchEpic
+]

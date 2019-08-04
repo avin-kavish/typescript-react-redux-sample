@@ -1,4 +1,4 @@
-import {Question, questionCols, questions} from '../../data/questions'
+import {Question, questionCols} from '../../data/questions'
 import styled from '@emotion/styled'
 import Popup from 'reactjs-popup'
 import {theme} from '../../styles'
@@ -6,33 +6,69 @@ import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faCheckCircle, faEllipsisH, faEye, faPlus, faTrash} from '@fortawesome/free-solid-svg-icons'
 import {css} from '@emotion/core'
 import {IconProp} from '@fortawesome/fontawesome-svg-core'
-import React from 'react'
-import {FlexBox} from '../../components'
-import {Table} from '../../components/Table'
-import { connect } from 'react-redux'
+import React, {useEffect} from 'react'
+import {FlexBox, LoadingScreen, Table} from '../../components'
+import {connect} from 'react-redux'
 import {RootState} from '../../state/store';
+import {beginFetch, sortQuestions, SortType} from '../../state/questions';
 
 type DataTableProps = {
   questions: Question[]
+  isLoading: boolean
+  sort: SortType
+  onSortClick: (value: SortType) => void
+  refresh: () => void
 }
 
-function DataTable({ questions }: DataTableProps) {
+function DataTable({questions, onSortClick, refresh, sort, isLoading}: DataTableProps) {
+  useEffect(() => {
+    refresh()
+  }, ['hot'])
 
   return (
-      <Table
-          columns={questionCols}
-          data={questions}
-          render={renderRow}
-      />
+      <div css={css`position:relative;`}>
+        <Table
+            columns={questionCols}
+            data={questions}
+            onSortClick={onSortClick}
+            render={renderRow}
+            sort={sort}
+        />
+        {isLoading && LoadingOverlay}
+      </div>
   )
 }
 
-export default connect((state: RootState) => ({ questions: state.questions.questions }))(DataTable)
+export default connect(
+    ({questions}: RootState) => ({
+      questions: questions.questions,
+      isLoading: questions.isLoading,
+      sort: questions.sort
+    }),
+    dispatch => ({
+      onSortClick: (value: SortType) => dispatch(sortQuestions(value)),
+      refresh: () => dispatch(beginFetch({}))
+    })
+)(DataTable)
+
+const LoadingOverlay = (
+    <LoadingScreen
+        css={css`
+          position: absolute;
+          width: 100%;
+          height: 100%;
+          top: 0;
+          left: 0;
+          font-size: 38px;
+          background-color: rgba(255, 255, 255, 0.4);
+        `}
+    />
+)
 
 const renderRow = (data: Question) => (
-    <tr>
+    <tr key={data.id}>
       <td>{data.id}</td>
-      <td>{data.question}</td>
+      <td css={css`width: 100%;`}>{data.question}</td>
       <td>{data.category}</td>
       <td>{data.state}</td>
       <td>

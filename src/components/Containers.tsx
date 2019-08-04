@@ -1,5 +1,8 @@
 import styled from '@emotion/styled';
 import {AlignItemsProperty, JustifyContentProperty} from 'csstype';
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
+import {faSpinner} from '@fortawesome/free-solid-svg-icons';
+import React from 'react';
 
 type FlexProps = {
   alignItems?: AlignItemsProperty
@@ -28,3 +31,12 @@ export const Centered = styled.div`
   align-items: center;
   justify-content: center;
 `
+
+export function LoadingScreen({ className }: { className?: string }) {
+
+  return (
+      <Centered className={className}>
+        <FontAwesomeIcon icon={faSpinner} spin />
+      </Centered>
+  )
+}

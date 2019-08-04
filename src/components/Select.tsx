@@ -5,18 +5,6 @@ import React, {useCallback, useMemo, useState} from 'react'
 import {theme} from '../styles';
 import styled from '@emotion/styled';
 
-export type LabelValue<T> = { label: string, value: T }
-
-type SelectProps<T = any> = {
-  isOpen: boolean
-  onMenuToggle: (isOpen: boolean) => void
-  value: LabelValue<T>
-  onChange: (labelValue: LabelValue<T>) => void
-  values: LabelValue<T>[]
-  editable?: boolean
-  placeholder?: string
-}
-
 type useManagedSelectParam<T> = {
   values: T[]
   initialValue: T
@@ -51,6 +39,18 @@ export function useSelect<T>({value, values, labelFn, onChange}: useSelectOption
     onChange: useCallback((labelValue: LabelValue<T>) => onChange(labelValue.value), [onChange]),
     values: useMemo(() => values.map(v => ({label: labelFn(v), value: v})), [values])
   }
+}
+
+export type LabelValue<T> = { label: string, value: T }
+
+type SelectProps<T = any> = {
+  isOpen: boolean
+  onMenuToggle: (isOpen: boolean) => void
+  value: LabelValue<T>
+  onChange: (labelValue: LabelValue<T>) => void
+  values: LabelValue<T>[]
+  editable?: boolean
+  placeholder?: string
 }
 
 export function Select<T>({isOpen, onMenuToggle, value, onChange, values, placeholder = '', editable = true}: SelectProps<T>) {

@@ -1,10 +1,9 @@
 import React from 'react';
-import {FlexBox, FlexSpacer} from '../../components';
+import {FlexBox, FlexSpacer, PageCount, PageCountProps, Pager, PagerProps} from '../../components';
 import {css} from '@emotion/core';
-import {PageCount, PageCountProps, Pager, PagerProps} from '../../components/Pagination';
 import {connect} from 'react-redux';
 import {RootState} from '../../state/store';
-import {changePage} from '../../state/questions';
+import {changePage, changePerPage} from '../../state/questions';
 
 type ActionBarProps = {
   pagerProps: PagerProps,
@@ -36,6 +35,6 @@ export default connect(({questions}: RootState) => ({
     }),
     dispatch => ({
       pagerOnChange: (newPage: number) => dispatch(changePage(newPage)),
-      pageCountOnChange: (newPage: number) => dispatch(changePage(newPage)),
+      pageCountOnChange: (newPage: number) => dispatch(changePerPage(newPage)),
     }))(ActionBar)
 

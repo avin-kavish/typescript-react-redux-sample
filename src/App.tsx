@@ -6,9 +6,7 @@ import {FullWidthLayout} from './layouts';
 import {BrowserRouter as Router, Route, Switch} from 'react-router-dom'
 import {Home} from './routes/home';
 import {routes} from './routes';
-import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import {faSpinner} from '@fortawesome/free-solid-svg-icons';
-import {Centered} from './components';
+import {LoadingScreen} from './components';
 import {Provider} from 'react-redux';
 import store from './state/store';
 
@@ -31,15 +29,6 @@ function App() {
   )
 }
 
-const LazyQuestionManager = lazy(() => import('./routes/custom-question-manager/CustomQuestionManager'))
-
-function LoadingScreen() {
-
-  return (
-      <Centered>
-        <FontAwesomeIcon icon={faSpinner} spin />
-      </Centered>
-  )
-}
+const LazyQuestionManager = lazy(() => import('./routes/custom-question-manager'))
 
 export default hot(App)

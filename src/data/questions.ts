@@ -1,3 +1,9 @@
+import {SortType} from '../state/questions';
+import {questionStrings} from './questionStrings';
+import {ColumnDef} from '../components';
+import {states} from './states';
+import {Filters} from '../state/filters';
+
 export interface Question {
   id: number,
   question: string,
@@ -9,73 +15,145 @@ export interface Question {
   display: string
 }
 
-export const questions: Question[] = [
-  ...Array(15).fill({
-    id: 57515,
-    question: 'Do you keep all surveillance recordings for at least 90 calendar days?',
-    category: 'Company Policy',
-    questionGroup: [
-      'A name of the question group',
-      'Another name of a question group'
-    ],
-    license: [
-      'A: Type  01 = Cultivation; Specialty Outdoor',
-      'A: Type  01A = Cultivation; Specialty Indoor',
-      'A: Type  01C = Cultivation; Specialty Cottage'
-    ],
-    state: 'CA',
-    status: 'Active',
-    display: 'Draft',
-  }).map((q: Question, i) => ({...q, id: q.id + i, display: Math.random() < 0.6 ? 'Published' : 'Draft'}))
-]
 
-export const questionCols = [
+export const questionCols: ColumnDef<Question>[] = [
   {
     label: '#',
-    key: 'id'
+    key: 'id',
+    sortable: true
   },
   {
     label: 'Question',
-    key: 'question'
+    key: 'question',
+    sortable: true
   },
   {
     label: 'Category',
-    key: 'question'
+    key: 'category',
+    sortable: true
   },
   {
     label: 'State',
-    key: 'question'
+    key: 'state',
+    sortable: true
   },
   {
     label: 'Question Group',
-    key: 'question'
+    key: 'questionGroup',
+    sortable: false
   },
   {
     label: 'License',
-    key: 'question'
+    key: 'license',
+    sortable: false
   },
   {
     label: 'Status',
-    key: 'question'
+    key: 'status',
+    sortable: true
   },
   {
     label: 'Display',
-    key: 'display'
+    key: 'display',
+    sortable: false
   },
   {
     label: 'Action',
-    key: 'action'
+    key: null,
+    sortable: false
   },
 ]
 
+const categories = [
+  'Company Policy',
+  'Private Policy',
+  'Public Policy',
+  'Government Policy'
+]
 
-export function filterQuestions(param: Partial<Record<keyof Question, string>>, page: number, perPage: number) {
-  const filters = Object.entries(param)
+export const questions: Question[] = Array(50).fill({
+  id: 57515,
+  question: 'Do you keep all surveillance recordings for at least 90 calendar days?',
+  category: 'Company Policy',
+  questionGroup: [
+    'A name of the question group',
+    'Another name of a question group',
+    'The other question group that is being used'
+  ],
+  license: [
+    'A: Type 01 = Cultivation; Specialty Outdoor',
+    'A: Type 01A = Cultivation; Specialty Indoor',
+    'A: Type 01C = Cultivation; Specialty Cottage'
+  ],
+  state: 'CA',
+  status: 'Active',
+  display: 'Draft',
+}).map((q: Question, i) => ({
+  ...q,
+  id: q.id + i,
+  question: questionStrings[i],
+  category: categories[Math.floor(Math.random() * categories.length)],
+  state: states[Math.floor(Math.random() * states.length)][0],
+  display: Math.random() < 0.6 ? 'Published' : 'Draft'
+}))
 
-  const filtered = questions
-      .filter(q => filters.reduce((acc, [key, value]) => acc && q[key] === value, true))
+
+// This code is not the clearest to read, it is only for testing purposes
+export function filterQuestions(param: Partial<Record<keyof Question, string>>, page: number, perPage: number, sort?: SortType) {
+  const filters = Object.entries(param || {})
+
+  let filtered = questions
+      .filter(question => filters.reduce((acc, [key, value]) =>
+              acc && key === 'question'
+                  ? question.question.toLowerCase().includes(value.trim().toLowerCase())
+                  : key === 'license' || key === 'questionGroup'
+                  ? question[key].find(el => el === value)
+                  : question[key] === value,
+          true))
+
+  if (sort) {
+    const [key, direction] = sort
+    filtered = filtered.sort((q1, q2) => {
+      const val1 = q1[key]
+      const val2 = q2[key]
+
+      if (typeof val1 === 'string' && typeof val2 === 'string')
+        return val1.localeCompare(val2)
+      else if (typeof val1 === 'number' && typeof val2 === 'number')
+        return val1 - val2
+      else
+        return 0
+    })
+  }
+
   return {
     questions: filtered.slice((page - 1) * perPage, page * perPage),
     total: filtered.length
   }
 }
+
+// This code is not the clearest to read, it is only for testing purposes
+export function makeConstraints() {
+  const constraints: Filters =  questions.reduce((acc, q) => {
+    Object.entries(q).forEach(([key, value]) => {
+      acc[key] = acc[key] || []
+
+      if (Array.isArray(value)) {
+        value.forEach(v => {
+          if (!acc[key].find((el: any) => el === v))
+            acc[key].push(v)
+        })
+      } else if (!acc[key].find((el: any) => el === value))
+        acc[key].push(value)
+    })
+    return acc
+  }, {})
+
+  for (const key in constraints) {
+    if (constraints.hasOwnProperty(key) && Array.isArray(constraints[key]))
+      constraints[key].sort((a, b) => String(a).localeCompare(b))
+  }
+
+  return constraints
+}
+

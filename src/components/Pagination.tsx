@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {FlexBox} from './Containers';
 import styled from '@emotion/styled';
 import {theme} from '../styles';
@@ -16,9 +16,12 @@ export function Pager({total, perPage, current, onChange}: PagerProps) {
   const pages = Math.ceil(total / perPage)
   const mapHelper = Array(pages || 1).fill(0).map((_, i) => i + 1)
 
+  const canBack = current > 1
+  const canForward = current < pages
+
   return (
       <FlexBox>
-        <DirectionButton>{'< Back'}</DirectionButton>
+        <DirectionButton onClick={canBack ? () => onChange(current - 1) : void 0}>{'< Back'}</DirectionButton>
         {mapHelper.map(page =>
             <PageButton
                 key={page}
@@ -28,7 +31,7 @@ export function Pager({total, perPage, current, onChange}: PagerProps) {
               {page}
             </PageButton>
         )}
-        <DirectionButton>{'Next >'}</DirectionButton>
+        <DirectionButton onClick={canForward ? () => onChange(current + 1) : void 0}>{'Next >'}</DirectionButton>
       </FlexBox>
   )
 }
@@ -53,11 +56,30 @@ export type PageCountProps = {
 }
 
 export function PageCount({value, onChange}: PageCountProps) {
+  const [text, set] = useState('' + value)
+
+  const localOnChange: JSX.IntrinsicElements['input']['onChange'] = e => {
+    const {value} = e.target
+
+    if (value === '')
+      set(value)
+    else if (!isNaN(+value))
+      set(value)
+  }
+
+  const keyUp: JSX.IntrinsicElements['input']['onKeyUp'] = e => {
+    if (e.key === 'Enter')
+      onChange(+text)
+  }
 
   return (
       <div>
         Show
-        <TinyInput value={value}/>
+        <TinyInput
+            value={text}
+            onChange={localOnChange}
+            onKeyUp={keyUp}
+        />
         items
       </div>
   )

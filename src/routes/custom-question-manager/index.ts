@@ -1,1 +1,3 @@
-export * from './CustomQuestionManager'
+import {CustomQuestionManager} from './CustomQuestionManager';
+
+export default CustomQuestionManager
