@@ -1,6 +1,6 @@
 import * as express from 'express'
 import * as bodyParser from 'body-parser'
-import {filterQuestions, questions, makeConstraints} from './data/questions'
+import {addQuestion, filterQuestions, makeConstraints} from './data/questions'
 
 const app = express()
 app.use(bodyParser.json())
@@ -11,11 +11,23 @@ app.use((req, res, next) => {
   next()
 })
 
+/**
+ * GET Questions based on search criteria
+ * I used POST here even for GET because I was too lazy to pass arguments from query string
+ */
 app.post('/questions', (req, res) => {
   const params = req.body
-  const result = filterQuestions(params.filters, params.page || 1, params.perPage || 5)
+  const result = filterQuestions(params.filters, params.page || 1, params.perPage || 5, params.sort)
   res.send(result)
 })
+
+app.post('/questions/add', (req, res) => {
+  const questions = req.body
+  addQuestion(questions)
+  res.status(201).end()
+})
+
+
 
 app.get('/filters', (req, res) => {
   const result = makeConstraints()

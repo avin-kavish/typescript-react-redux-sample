@@ -6,17 +6,15 @@ import {catchError, filter, map, switchMap, takeUntil} from 'rxjs/operators';
 import {ajax} from 'rxjs/ajax';
 import {of} from 'rxjs';
 
+export type Filters = Partial<Record<keyof Question, string[]>>
+export type FiltersActions = ActionType<typeof fetchFilters>
+
 export const fetchFilters = createAsyncAction(
     'FETCH_FILTERS_REQUEST',
     'FETCH_FILTERS_SUCCESS',
     'FETCH_FILTERS_FAILURE',
     'FETCH_FILTERS_CANCEL'
 )<null, Filters, Error, string>()
-
-export type FiltersActions = ActionType<typeof fetchFilters>;
-
-export type Filters = Partial<Record<keyof Question, string[]>>
-
 
 const {request: begin, success, failure, cancel} = fetchFilters
 const initialState: Filters = {

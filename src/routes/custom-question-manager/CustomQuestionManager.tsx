@@ -5,8 +5,11 @@ import SearchBox from './SearchBox';
 import Header from './Header';
 import DataTable from './DataTable';
 import ActionBar from './ActionBar';
+import {Route, RouteComponentProps, WithRouterProps} from 'react-router';
+import Popup from 'reactjs-popup';
+import AddQuestion from './add-question/AddQuestion';
 
-export function CustomQuestionManager() {
+export function CustomQuestionManager({match, history}: RouteComponentProps) {
 
   return (
       <>
@@ -16,6 +19,20 @@ export function CustomQuestionManager() {
           <DataTable/>
           <ActionBar/>
         </Card>
+        <Route
+            path={`${match.url}/add-question`}
+            component={() => (
+                <Popup
+                    modal
+                    open
+                    closeOnDocumentClick
+                    onClose={() => history.goBack()}
+                    contentStyle={{ backgroundColor: 'transparent', border: 0 }}
+                >
+                    <AddQuestion/>
+                </Popup>
+            )}
+        />
       </>
   )
 }

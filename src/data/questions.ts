@@ -15,7 +15,6 @@ export interface Question {
   display: string
 }
 
-
 export const questionCols: ColumnDef<Question>[] = [
   {
     label: '#',
@@ -64,6 +63,12 @@ export const questionCols: ColumnDef<Question>[] = [
   },
 ]
 
+/**
+ * CODE FOR MOCKING BACKEND
+ * No coding standards followed
+ * Fake Logic to support CRUD operations on Questions
+ */
+
 const categories = [
   'Company Policy',
   'Private Policy',
@@ -91,38 +96,32 @@ export const questions: Question[] = Array(50).fill({
 }).map((q: Question, i) => ({
   ...q,
   id: q.id + i,
-  question: questionStrings[i],
+  question: questionStrings[i % 50],
   category: categories[Math.floor(Math.random() * categories.length)],
   state: states[Math.floor(Math.random() * states.length)][0],
-  display: Math.random() < 0.6 ? 'Published' : 'Draft'
+  display: Math.random() < 0.6 ? 'Published' : 'Draft',
+  status: Math.random() < 0.7 ? 'Active' : 'Inactive'
 }))
 
-
 // This code is not the clearest to read, it is only for testing purposes
-export function filterQuestions(param: Partial<Record<keyof Question, string>>, page: number, perPage: number, sort?: SortType) {
+export function filterQuestions(param: Partial<Record<keyof Question, string>>, page: number, perPage: number, sort?: SortType<Question>) {
   const filters = Object.entries(param || {})
 
   let filtered = questions
       .filter(question => filters.reduce((acc, [key, value]) =>
-              acc && key === 'question'
+              acc && (key === 'question'
                   ? question.question.toLowerCase().includes(value.trim().toLowerCase())
                   : key === 'license' || key === 'questionGroup'
                   ? question[key].find(el => el === value)
-                  : question[key] === value,
+                  : question[key] === value),
           true))
 
-  if (sort) {
+  if (sort && sort[1] !== 'none') {
     const [key, direction] = sort
     filtered = filtered.sort((q1, q2) => {
       const val1 = q1[key]
       const val2 = q2[key]
-
-      if (typeof val1 === 'string' && typeof val2 === 'string')
-        return val1.localeCompare(val2)
-      else if (typeof val1 === 'number' && typeof val2 === 'number')
-        return val1 - val2
-      else
-        return 0
+      return (direction === 'asc' ? 1 : -1) * CompareAny(val1, val2)
     })
   }
 
@@ -132,9 +131,18 @@ export function filterQuestions(param: Partial<Record<keyof Question, string>>, 
   }
 }
 
+function CompareAny(val1: any, val2: any) {
+  if (typeof val1 === 'string' && typeof val2 === 'string')
+    return val1.localeCompare(val2)
+  else if (typeof val1 === 'number' && typeof val2 === 'number')
+    return val1 - val2
+  else
+    return 0
+}
+
 // This code is not the clearest to read, it is only for testing purposes
 export function makeConstraints() {
-  const constraints: Filters =  questions.reduce((acc, q) => {
+  const constraints: Filters = questions.reduce((acc, q) => {
     Object.entries(q).forEach(([key, value]) => {
       acc[key] = acc[key] || []
 
@@ -151,9 +159,12 @@ export function makeConstraints() {
 
   for (const key in constraints) {
     if (constraints.hasOwnProperty(key) && Array.isArray(constraints[key]))
-      constraints[key].sort((a, b) => String(a).localeCompare(b))
+      constraints[key].sort((a: any, b: any) => String(a).localeCompare(b))
   }
 
   return constraints
 }
 
+export function addQuestion(question: Question) {
+  questions.unshift(question)
+}

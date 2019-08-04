@@ -1,11 +1,12 @@
-import {Question, questions as questionSource} from '../data/questions';
+import {Question} from '../data/questions';
 import {Epic} from 'redux-observable';
 import {catchError, delay, filter, map, switchMap, tap} from 'rxjs/operators';
-import {isOfType} from 'typesafe-actions';
+import {ActionType, createAction, isActionOf, isOfType} from 'typesafe-actions';
 import {RootState} from './store';
 import {ajax} from 'rxjs/ajax';
 import {of} from 'rxjs';
-import {debug} from '../utilities';
+import {debugStream, jsonHeader} from '../utilities';
+import history from './history';
 
 export const SEARCH_QUESTIONS = 'questions/SEARCH'
 export const SORT = 'questions/SORT'
@@ -61,6 +62,7 @@ export type QuestionActions =
     | BeginFetchAction
     | FetchSuccessAction
     | FetchFailureAction
+    | ActionType<typeof questionsCrud>
 
 export const searchQuestions = (payload: SearchFilters): SearchQuestionsAction => ({type: SEARCH_QUESTIONS, payload});
 
@@ -75,6 +77,13 @@ export const beginFetch = (payload: BeginFetchAction['payload']): BeginFetchActi
 export const fetchSuccess = (payload: SearchResults): FetchSuccessAction => ({type: FETCH_SUCCESS, payload});
 
 export const fetchFailure = (payload: Error): FetchFailureAction => ({type: FETCH_FAILURE, payload})
+
+export const questionsCrud = {
+  create: createAction('questions/CREATE', action => (question: Question) => action(question)),
+  read: createAction('questions/READ', action => (question: Question) => action(question)),
+  update: createAction('questions/UPDATE', action => (question: Question) => action(question)),
+  delete: createAction('questions/DELETE', action => (question: Question) => action(question))
+}
 
 export type SearchFilters = Partial<Record<keyof Question, string>>
 
@@ -124,7 +133,23 @@ export default function reducer(state: QuestionState = initialState, action: Que
   }
 }
 
+const {create} = questionsCrud
+
 type QuestionEpic = Epic<QuestionActions, QuestionActions, RootState>
+
+const addEpic: QuestionEpic = (action$, state$) =>
+    action$.pipe(
+        filter(isActionOf(create)),
+        debugStream(),
+        switchMap(action =>
+            ajax.post(`http://localhost:3000/questions/add`, action.payload, jsonHeader)
+                .pipe(
+                    map(value => beginFetch(null)),
+                    tap(() => history.goBack()),
+                    catchError(error => of(fetchFailure(error)))
+                )
+        )
+    )
 
 export const searchEpic: QuestionEpic = (action$, state$) =>
     action$.pipe(
@@ -154,7 +179,7 @@ export const sortEpic: QuestionEpic = (action$, state$) =>
 export const fetchEpic: QuestionEpic = (action$, state$) =>
     action$.pipe(
         filter(isOfType(BEGIN_FETCH)),
-        delay(400), // Delay to simulate network latency
+        delay(process.env.NODE_ENV === 'development' ? 400 : 0), // Delay to simulate network latency
         switchMap(action => {
               const {filters, perPage, page, sort} = state$.value.questions
 
@@ -162,10 +187,10 @@ export const fetchEpic: QuestionEpic = (action$, state$) =>
                 url: `http://localhost:3000/questions`,
                 method: 'post',
                 body: {filters, perPage, page, sort, ...action.payload},
-                headers: {'Content-type': 'application/json'}
+                headers: jsonHeader
               })
                   .pipe(
-                      debug(),
+                      debugStream(),
                       map(res => fetchSuccess(res.response)),
                       catchError(err => of(fetchFailure(err)))
                   )
@@ -178,5 +203,6 @@ export const questionEpics = [
   changePageEpic,
   changePerPageEpic,
   sortEpic,
-  fetchEpic
+  fetchEpic,
+  addEpic
 ]

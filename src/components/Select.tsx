@@ -1,17 +1,18 @@
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faChevronDown} from '@fortawesome/free-solid-svg-icons'
+import {faChevronDown, faTimes} from '@fortawesome/free-solid-svg-icons'
 import {css} from '@emotion/core'
 import React, {useCallback, useMemo, useState} from 'react'
 import {theme} from '../styles';
 import styled from '@emotion/styled';
+import {UnstyledButton} from './Buttons';
 
-type useManagedSelectParam<T> = {
+type useManagedSelectOptions<T> = {
   values: T[]
   initialValue: T
   labelFn: (value: T) => string
 }
 
-export function useManagedSelect<T>({values, initialValue = null, labelFn}: useManagedSelectParam<T>) {
+export function useManagedSelect<T>({values, initialValue = null, labelFn}: useManagedSelectOptions<T>) {
   const [isOpen, toggle] = useState(false)
   const [value, onChange] = useState<LabelValue<T>>(initialValue
       ? {label: labelFn(initialValue), value: initialValue}
@@ -35,8 +36,8 @@ export function useSelect<T>({value, values, labelFn, onChange}: useSelectOption
   return {
     isOpen,
     onMenuToggle: toggle,
-    value: useMemo(() => ({label: labelFn(value), value}), [values]),
-    onChange: useCallback((labelValue: LabelValue<T>) => onChange(labelValue.value), [onChange]),
+    value: useMemo(() => value ? ({label: labelFn(value), value}) : null, [value]),
+    onChange: useCallback((labelValue: LabelValue<T>) => onChange(labelValue ? labelValue.value : null), [onChange]),
     values: useMemo(() => values.map(v => ({label: labelFn(v), value: v})), [values])
   }
 }
@@ -58,8 +59,9 @@ export function Select<T>({isOpen, onMenuToggle, value, onChange, values, placeh
   return (
       <SelectWrapper isOpen={isOpen}>
         <SelectValue>{value ? value.label : <span>{placeholder}</span>}</SelectValue>
+        {value && <UnstyledButton onClick={() => onChange(null)}><Icon icon={faTimes}/></UnstyledButton>}
         {editable && <DropdownToggle onClick={() => onMenuToggle(!isOpen)}>
-            <DropdownIcon
+            <Icon
                 icon={faChevronDown}
                 style={{transform: isOpen ? 'rotateX(180deg)' : 'rotateX(0deg)'}}
             />
@@ -77,7 +79,7 @@ export function Select<T>({isOpen, onMenuToggle, value, onChange, values, placeh
                     {v.label}
                   </DropdownItem>
               ))
-              : <NoItems />
+              : <NoItems/>
           }
         </Dropdown>}
       </SelectWrapper>
@@ -147,7 +149,7 @@ const DropdownToggle = styled.div`
   ${hoverCss};
 `
 
-const DropdownIcon = styled(FontAwesomeIcon)`
+const Icon = styled(FontAwesomeIcon)`
   font-size: 14px;
   transition: transform 200ms ease;
   color: #7e8caf;

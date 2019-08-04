@@ -19,6 +19,12 @@ export const FlexSpacer = styled.div`
   flex-grow:1;
 `
 
+const defaultWidth = '1rem'
+
+export const Spacer = styled.div<{ width?: number }>`
+  width: ${props => 'width' in props ? `${props.width}px` : defaultWidth };
+`
+
 export const Card = styled.div<{ noPadding?: boolean }>`
   border-radius: 12px;
   background-color: white;

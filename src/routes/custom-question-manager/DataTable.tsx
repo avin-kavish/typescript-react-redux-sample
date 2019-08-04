@@ -11,6 +11,7 @@ import {FlexBox, LoadingScreen, Table} from '../../components'
 import {connect} from 'react-redux'
 import {RootState} from '../../state/store';
 import {beginFetch, sortQuestions, SortType} from '../../state/questions';
+import {safeJoin} from '../../utilities';
 
 type DataTableProps = {
   questions: Question[]
@@ -73,12 +74,12 @@ const renderRow = (data: Question) => (
       <td>{data.state}</td>
       <td>
         <ViewPopup>
-          {<div>{data.questionGroup.join('\n')}</div>}
+          {<div>{safeJoin(data.questionGroup)}</div>}
         </ViewPopup>
       </td>
       <td>
         <ViewPopup>
-          {<div>{data.license.join('\n')}</div>}
+          {<div>{safeJoin(data.license)}</div>}
         </ViewPopup>
       </td>
       <td>{data.status}</td>

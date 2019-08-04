@@ -9,7 +9,7 @@ import {darken} from 'polished';
 type ButtonProps = PropsWithChildren<{
   icon?: IconProp
   style?: ButtonType
-}>
+}> & Omit<JSX.IntrinsicElements['button'], 'style'>
 
 type ButtonType = 'light' | 'primary'
 
@@ -34,6 +34,11 @@ const StyledButton = styled.button<{ buttonStyle: ButtonType }>`
   cursor: pointer;
   transition: background-color 200ms ease;
 
+  ${props => props.buttonStyle === 'primary' && css`;
+    font-size: 18px;
+    font-weight: 600;
+  `}
+
   &:hover {
     background-color: ${props => props.buttonStyle === 'light'
     ?  darken(0.03, '#ede8fc')
@@ -53,7 +58,7 @@ export const UnstyledButton = styled.button`
   padding: 0;
   width: auto;
   overflow: visible;
-
+  cursor: pointer;
   background: transparent;
 
   /* inherit font & color from ancestor */

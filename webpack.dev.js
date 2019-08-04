@@ -7,7 +7,7 @@ const {
     styleLoader,
     imageLoaders
 } = require('./webpack.setup')
-const {HotModuleReplacementPlugin} = require('webpack')
+const {HotModuleReplacementPlugin, EnvironmentPlugin} = require('webpack')
 const speedMeasurer = new (require("speed-measure-webpack-plugin"))()
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const path = require('path')
@@ -21,6 +21,7 @@ const devel = {
     output: {
         path: path.resolve(__dirname, `dist`),
         filename: `[name].js`,
+        publicPath: '/'
     },
     module: {
         rules: [
@@ -42,6 +43,10 @@ const devel = {
     },
     plugins: [
         new HtmlWebpackPlugin({template: 'src/index.html'}),
+        new EnvironmentPlugin({
+            NODE_ENV: 'development',
+            DEBUG: true
+        }),
         clean(),
         tsCheck({async: true}),
         new HotModuleReplacementPlugin()

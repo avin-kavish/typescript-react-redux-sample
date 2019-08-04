@@ -7,9 +7,18 @@ const inputCss = css`
   font-size: 16px;
   border:1px solid ${theme.border.input};
   border-radius: 4px;
-  background-color: #f7f8fc;
   min-width: 0;
   width: 100%;
+  background-color: #f7f8fc;
+
+  &:disabled {
+    background-color: #ebeff0;
+    color: #c9ced2;
+
+    &::placeholder{
+        color: #c9ced2;
+    }
+  }
 `
 
 export const InputBox = styled.input`
@@ -25,3 +34,6 @@ export const SelectBox = styled.select`
   }
 `
 
+export const FormGroup = styled.div`
+  margin-bottom: 12px;
+`

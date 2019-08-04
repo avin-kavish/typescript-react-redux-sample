@@ -1,26 +1,30 @@
-import {Button, Card, Col, InputBox, Row, Select, useManagedSelect} from '../../components';
+import {Button, Card, Col, InputBox, Row} from '../../components';
 import {css} from '@emotion/core';
-import React, {useEffect, useState} from 'react';
+import React, {useEffect} from 'react';
 import {SearchFilters, searchQuestions} from '../../state/questions';
 import {connect} from 'react-redux';
-import {fetchFilters, Filters} from '../../state/filters';
-import {RootState} from '../../state/store';
+import {fetchFilters} from '../../state/filters';
+import Select from './ConnectedSelect';
+import {useFormState} from 'react-use-form-state';
 
 type SearchBoxProps = {
   onSearchClick: (filters: SearchFilters) => void
-  filters: Filters
   fetchFilters: () => void
 }
 
-function SearchBox({onSearchClick, filters, fetchFilters}: SearchBoxProps) {
-  const selectProps = {
-    license: useManagedSelect({initialValue: null, values: filters.license, labelFn: v => v}),
-    state: useManagedSelect({initialValue: null, values: filters.state, labelFn: v => v}),
-    category: useManagedSelect({initialValue: null, values: filters.category, labelFn: v => v}),
-    status: useManagedSelect({initialValue: null, values: filters.status, labelFn: v => v}),
-    display: useManagedSelect({initialValue: null, values: filters.display, labelFn: v => v})
-  }
-  const [question, set] = useState('')
+export default connect(
+    null,
+    dispatch => ({
+      onSearchClick: (payload: SearchFilters) => dispatch(searchQuestions(payload)),
+      fetchFilters: () => dispatch(fetchFilters.request())
+    })
+)(SearchBox)
+
+function SearchBox({onSearchClick, fetchFilters}: SearchBoxProps) {
+  const [
+    {values},
+    {text, raw}
+  ] = useFormState({license: null, state: null, category: null, status: null, display: null, question: ''})
 
   useEffect(() => {
     fetchFilters()
@@ -28,13 +32,8 @@ function SearchBox({onSearchClick, filters, fetchFilters}: SearchBoxProps) {
 
   const submitForm: JSX.IntrinsicElements['form']['onSubmit'] = e => {
     e.preventDefault()
-    const filters: SearchFilters = Object.entries(selectProps).reduce((acc, [key, props]) => {
-      if (props.value)
-        acc[key] = props.value.value
-      return acc
-    }, {})
-    if (question)
-      filters.question = question
+    const filters = {...values}
+    Object.keys(filters).forEach(key => (filters[key] === null || filters[key] === undefined) && delete filters[key])
     onSearchClick(filters)
   }
 
@@ -44,21 +43,20 @@ function SearchBox({onSearchClick, filters, fetchFilters}: SearchBoxProps) {
           <Row css={css`margin-bottom: 12px;`}>
             <Col size={7}>
               <InputBox
+                  {...text('question')}
                   placeholder="Search by Question"
-                  value={question}
-                  onChange={e => set(e.target.value)}
               />
             </Col>
             <Col size={3}>
-              <Select {...selectProps.license} placeholder="License"/>
+              <Select.License {...raw('license')} />
             </Col>
             <Col size={2}>
-              <Select {...selectProps.state} placeholder="All States"/>
+              <Select.State {...raw('state')} />
             </Col>
           </Row>
           <Row css={css`flex-wrap: nowrap;`}>
             <Col size={3}>
-              <Select {...selectProps.category} placeholder="All Categories"/>
+              <Select.Category {...raw('category')} />
             </Col>
             <Col size={4}>
               <InputBox
@@ -70,18 +68,16 @@ function SearchBox({onSearchClick, filters, fetchFilters}: SearchBoxProps) {
                 grow
                 shrink
             >
-              <Select {...selectProps.status} placeholder="Status"/>
+              <Select.Status {...raw('status')} />
             </Col>
             <Col
                 grow
                 shrink
             >
-              <Select {...selectProps.display} placeholder="Display"/>
+              <Select.Display {...raw('display')} />
             </Col>
             <Col>
-              <SearchButton
-                  type="submit"
-              />
+              <SearchButton type="submit"/>
             </Col>
           </Row>
         </form>
@@ -89,19 +85,11 @@ function SearchBox({onSearchClick, filters, fetchFilters}: SearchBoxProps) {
   )
 }
 
-export default connect(
-    (state: RootState) => ({ filters: state.filters }),
-    dispatch => ({
-      onSearchClick: (payload: SearchFilters) => dispatch(searchQuestions(payload)),
-      fetchFilters: () => dispatch(fetchFilters.request())
-    })
-)(SearchBox)
-
 const SearchButton = (props: JSX.IntrinsicElements['button']) => (
     <Button
         {...props}
         style="primary"
-        css={css`height: 100%;width:100%;font-size: 18px; font-weight: 600;`}
+        css={css`height: 100%;width:100%;`}
     >
       Search
     </Button>

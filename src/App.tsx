@@ -3,19 +3,20 @@ import {globalCss} from './styles';
 import {hot} from 'react-hot-loader/root';
 import {Global} from '@emotion/core';
 import {FullWidthLayout} from './layouts';
-import {BrowserRouter as Router, Route, Switch} from 'react-router-dom'
+import {Router, Route, Switch} from 'react-router-dom'
 import {Home} from './routes/home';
 import {routes} from './routes';
 import {LoadingScreen} from './components';
 import {Provider} from 'react-redux';
 import store from './state/store';
+import history from './state/history'
 
 function App() {
 
   return (
       <Provider store={store}>
         <Global styles={globalCss}/>
-        <Router>
+        <Router history={history}>
         <FullWidthLayout>
           <Suspense fallback={<LoadingScreen />}>
           <Switch>
