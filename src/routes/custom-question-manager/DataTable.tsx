@@ -92,6 +92,7 @@ const DisplayType = styled(({display, ...props}) => <div {...props}>{display}</d
   padding: 6px 12px;
   border-radius:4px;
   text-align: center;
+  font-size: 15px;
   font-weight: 500;
   color: #fefdfb;
   background-color: ${props => props.display === 'Draft'

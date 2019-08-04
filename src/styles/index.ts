@@ -42,3 +42,14 @@ export const globalCss = css`
 `
 
 const flexCss = css`display: flex;align-items: center;`
+
+export const headerItemCss = (noHover?: boolean) => css`
+  padding: 12px 16px;
+  transition: all 150ms ease;
+  border-radius: 8px;
+  cursor: ${noHover ? 'initial' : 'pointer'};
+
+   &:hover {
+    background-color: ${!noHover && 'rgba(0,0,0,0.05)'};
+  }
+`

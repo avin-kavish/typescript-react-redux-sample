@@ -4,8 +4,8 @@
   "description": "Custom Question Manger",
   "main": "no",
   "scripts": {
-    "client:dev": "webpack-dev-server --config ./webpack.dev.js",
-    "server:dev": "nodemon --watch 'src/server.ts' --watch 'src/data/**/*' --exec 'ts-node -T --skip-project' src/server.ts"
+    "serve:client": "webpack-dev-server --config ./webpack.dev.js",
+    "serve:server": "nodemon --watch 'src/server.ts' --watch 'src/data/**/*' --exec 'ts-node -T --skip-project' src/server.ts"
   },
   "author": "Avin Kavish",
   "license": "MIT",
