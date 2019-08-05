@@ -1,12 +1,13 @@
 import * as express from 'express'
 import * as bodyParser from 'body-parser'
-import {addQuestion, filterQuestions, makeConstraints} from './data/questions'
+import {addQuestion, filterQuestions, makeConstraints, questions} from './data/questions'
 
 const app = express()
 app.use(bodyParser.json())
 
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*')
+  res.header('Access-Control-Allow-Methods', 'GET, PUT, POST, DELETE, OPTIONS')
   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept')
   next()
 })
@@ -27,6 +28,18 @@ app.post('/questions/add', (req, res) => {
   res.status(201).end()
 })
 
+app.delete('/questions/:id', (req, res) => {
+  const id = +req.params.id
+  if (id) {
+    const index = questions.findIndex(q => q.id === id)
+    if (index > -1)
+      questions.splice(index, 1)
+    else
+      res.status(400).end()
+  }
+
+  res.status(200).end()
+})
 
 
 app.get('/filters', (req, res) => {

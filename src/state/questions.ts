@@ -62,7 +62,7 @@ export type QuestionActions =
     | BeginFetchAction
     | FetchSuccessAction
     | FetchFailureAction
-    | ActionType<typeof questionsCrud>
+    | ActionType<typeof questionsCRUD>
 
 export const searchQuestions = (payload: SearchFilters): SearchQuestionsAction => ({type: SEARCH_QUESTIONS, payload});
 
@@ -78,7 +78,7 @@ export const fetchSuccess = (payload: SearchResults): FetchSuccessAction => ({ty
 
 export const fetchFailure = (payload: Error): FetchFailureAction => ({type: FETCH_FAILURE, payload})
 
-export const questionsCrud = {
+export const questionsCRUD = {
   create: createAction('questions/CREATE', action => (question: Question) => action(question)),
   read: createAction('questions/READ', action => (question: Question) => action(question)),
   update: createAction('questions/UPDATE', action => (question: Question) => action(question)),
@@ -133,7 +133,7 @@ export default function reducer(state: QuestionState = initialState, action: Que
   }
 }
 
-const {create} = questionsCrud
+const {create} = questionsCRUD
 
 type QuestionEpic = Epic<QuestionActions, QuestionActions, RootState>
 
@@ -146,6 +146,19 @@ const addEpic: QuestionEpic = (action$, state$) =>
                 .pipe(
                     map(value => beginFetch(null)),
                     tap(() => history.goBack()),
+                    catchError(error => of(fetchFailure(error)))
+                )
+        )
+    )
+
+const deleteEpic: QuestionEpic = (action$, state$) =>
+    action$.pipe(
+        filter(isActionOf(questionsCRUD.delete)),
+        debugStream(),
+        switchMap(action =>
+            ajax.delete(`http://localhost:3000/questions/${action.payload.id}`)
+                .pipe(
+                    map(_ => beginFetch(null)),
                     catchError(error => of(fetchFailure(error)))
                 )
         )
@@ -204,5 +217,6 @@ export const questionEpics = [
   changePerPageEpic,
   sortEpic,
   fetchEpic,
-  addEpic
+  addEpic,
+  deleteEpic
 ]

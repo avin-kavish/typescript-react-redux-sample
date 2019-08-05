@@ -5,7 +5,7 @@ import {Question} from '../../../data/questions';
 import {Intrinsics} from '../../../utilities';
 import {useFormState} from 'react-use-form-state';
 import {connect} from 'react-redux';
-import {questionsCrud} from '../../../state/questions';
+import {questionsCRUD} from '../../../state/questions';
 import Select from '../ConnectedSelect'
 import styled from '@emotion/styled';
 import {fetchFilters} from '../../../state/filters';
@@ -18,7 +18,7 @@ type AddQuestionProps = {
 export default connect(
     null,
     dispatch => ({
-      addQuestion: (question: Question) => dispatch(questionsCrud.create(question)),
+      addQuestion: (question: Question) => dispatch(questionsCRUD.create(question)),
       fetchFilters: () => dispatch(fetchFilters.request())
     })
 )(AddQuestion)

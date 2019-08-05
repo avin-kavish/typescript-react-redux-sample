@@ -6,11 +6,11 @@ import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faCheckCircle, faEllipsisH, faEye, faPlus, faTrash} from '@fortawesome/free-solid-svg-icons'
 import {css} from '@emotion/core'
 import {IconProp} from '@fortawesome/fontawesome-svg-core'
-import React, {useEffect} from 'react'
+import React, {useEffect, useState} from 'react'
 import {FlexBox, LoadingScreen, Table} from '../../components'
 import {connect} from 'react-redux'
 import {RootState} from '../../state/store';
-import {beginFetch, sortQuestions, SortType} from '../../state/questions';
+import {beginFetch, questionsCRUD, sortQuestions, SortType} from '../../state/questions';
 import {safeJoin} from '../../utilities';
 
 type DataTableProps = {
@@ -19,25 +19,7 @@ type DataTableProps = {
   sort: SortType
   onSortClick: (value: SortType) => void
   refresh: () => void
-}
-
-function DataTable({questions, onSortClick, refresh, sort, isLoading}: DataTableProps) {
-  useEffect(() => {
-    refresh()
-  }, ['hot'])
-
-  return (
-      <div css={css`position:relative;`}>
-        <Table
-            columns={questionCols}
-            data={questions}
-            onSortClick={onSortClick}
-            render={renderRow}
-            sort={sort}
-        />
-        {isLoading && LoadingOverlay}
-      </div>
-  )
+  onDeleteClick: (value: Question) => void
 }
 
 export default connect(
@@ -48,25 +30,31 @@ export default connect(
     }),
     dispatch => ({
       onSortClick: (value: SortType) => dispatch(sortQuestions(value)),
+      onDeleteClick: (value: Question) => dispatch(questionsCRUD.delete(value)),
       refresh: () => dispatch(beginFetch({}))
     })
 )(DataTable)
 
-const LoadingOverlay = (
-    <LoadingScreen
-        css={css`
-          position: absolute;
-          width: 100%;
-          height: 100%;
-          top: 0;
-          left: 0;
-          font-size: 38px;
-          background-color: rgba(255, 255, 255, 0.4);
-        `}
-    />
-)
+function DataTable({questions, onSortClick, onDeleteClick, refresh, sort, isLoading}: DataTableProps) {
+  useEffect(() => {
+    refresh()
+  }, ['hot'])
 
-const renderRow = (data: Question) => (
+  return (
+      <div css={css`position:relative;`}>
+        <Table
+            columns={questionCols}
+            data={questions}
+            onSortClick={onSortClick}
+            render={RenderRowFactory(onDeleteClick)}
+            sort={sort}
+        />
+        {isLoading && LoadingOverlay}
+      </div>
+  )
+}
+
+const RenderRowFactory = (onDeleteClick: (value: Question) => void) => (data: Question) => (
     <tr key={data.id}>
       <td>{data.id}</td>
       <td css={css`width: 100%;`}>{data.question}</td>
@@ -83,26 +71,14 @@ const renderRow = (data: Question) => (
         </ViewPopup>
       </td>
       <td>{data.status}</td>
-      <td><DisplayType display={data.display}/></td>
-      <td><ActionMenu/></td>
+      <td>
+        <DisplayType display={data.display}/>
+      </td>
+      <td>
+        <ActionMenu onDeleteClick={() => onDeleteClick(data)}/>
+      </td>
     </tr>
 )
-
-const DisplayType = styled(({display, ...props}) => <div {...props}>{display}</div>)`
-  padding: 6px 12px;
-  border-radius:4px;
-  text-align: center;
-  font-size: 15px;
-  font-weight: 500;
-  color: #fefdfb;
-  background-color: ${props => props.display === 'Draft'
-    ? '#b9c2cb'
-    : props.display === 'Published'
-        ? '#42be5c'
-        : 'transparent'
-    };
-`
-
 
 function ViewPopup({children}: { children: JSX.Element }) {
 
@@ -125,27 +101,27 @@ function ViewPopup({children}: { children: JSX.Element }) {
   )
 }
 
-const Anchor = styled.a`
-  color: ${theme.text.anchor};
-  cursor:pointer;
+type ActionMenuProps = {
+  onDeleteClick: () => void
+}
 
-  &:hover {
-     color: ${theme.text.anchor};
-     text-decoration: none;
-  }
-`
+function ActionMenu({onDeleteClick}: ActionMenuProps) {
+  const [isOpen, set] = useState(false)
 
-function ActionMenu() {
-
+  const handleDelete = () => { onDeleteClick(); set(false) }
   return (
       <Popup
-          trigger={<FontAwesomeIcon
-              icon={faEllipsisH}
-              css={css`color:#afbcc5;cursor: pointer;`}
-          />}
+          trigger={<div onClick={() => set(!isOpen)}>
+            <FontAwesomeIcon
+                icon={faEllipsisH}
+                css={css`color:#afbcc5;cursor: pointer;`}
+            />
+          </div>}
           contentStyle={{padding: 12, borderColor: theme.border.popup, borderRadius: 6, width: 'auto'}}
           position="bottom right"
           arrow={false}
+          closeOnDocumentClick
+          open={isOpen}
       >
         <div>
           <MenuItem
@@ -167,7 +143,7 @@ function ActionMenu() {
           <MenuItem
               icon={faTrash}
               label="Delete"
-              onClick={() => void 0}
+              onClick={handleDelete}
           />
         </div>
       </Popup>
@@ -192,6 +168,46 @@ function MenuItem({icon, label, onClick}: MenuItemProps) {
       </ItemWrapper>
   )
 }
+
+const LoadingOverlay = (
+    <LoadingScreen
+        css={css`
+          position: absolute;
+          width: 100%;
+          height: 100%;
+          top: 0;
+          left: 0;
+          font-size: 38px;
+          background-color: rgba(255, 255, 255, 0.4);
+        `}
+    />
+)
+
+const DisplayType = styled(({display, ...props}) => <div {...props}>{display}</div>)`
+  padding: 6px 12px;
+  border-radius:4px;
+  text-align: center;
+  font-size: 15px;
+  font-weight: 500;
+  color: #fefdfb;
+  background-color: ${props => props.display === 'Draft'
+    ? '#b9c2cb'
+    : props.display === 'Published'
+        ? '#42be5c'
+        : 'transparent'
+    };
+`
+
+
+const Anchor = styled.a`
+  color: ${theme.text.anchor};
+  cursor:pointer;
+
+  &:hover {
+     color: ${theme.text.anchor};
+     text-decoration: none;
+  }
+`
 
 const ItemWrapper = styled(FlexBox)`
   padding: 8px;
