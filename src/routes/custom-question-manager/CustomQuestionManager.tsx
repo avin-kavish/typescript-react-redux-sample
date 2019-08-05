@@ -5,7 +5,7 @@ import SearchBox from './SearchBox';
 import Header from './Header';
 import DataTable from './DataTable';
 import ActionBar from './ActionBar';
-import {Route, RouteComponentProps, WithRouterProps} from 'react-router';
+import {Route, RouteComponentProps} from 'react-router';
 import Popup from 'reactjs-popup';
 import AddQuestion from './add-question/AddQuestion';
 
@@ -27,9 +27,9 @@ export function CustomQuestionManager({match, history}: RouteComponentProps) {
                     open
                     closeOnDocumentClick
                     onClose={() => history.goBack()}
-                    contentStyle={{ backgroundColor: 'transparent', border: 0 }}
+                    contentStyle={{backgroundColor: 'transparent', border: 0}}
                 >
-                    <AddQuestion/>
+                  <AddQuestion/>
                 </Popup>
             )}
         />

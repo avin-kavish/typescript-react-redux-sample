@@ -109,11 +109,11 @@ export function filterQuestions(param: Partial<Record<keyof Question, string>>, 
 
   let filtered = questions
       .filter(question => filters.reduce((acc, [key, value]) =>
-              acc && (key === 'question'
-                  ? question.question.toLowerCase().includes(value.trim().toLowerCase())
-                  : key === 'license' || key === 'questionGroup'
-                  ? question[key].find(el => el === value)
-                  : question[key] === value),
+          acc && (key === 'question'
+          ? question.question.toLowerCase().includes(value.trim().toLowerCase())
+          : key === 'license' || key === 'questionGroup'
+              ? question[key].find(el => el === value)
+              : question[key] === value),
           true))
 
   if (sort && sort[1] !== 'none') {
@@ -165,5 +165,9 @@ export function makeConstraints() {
 }
 
 export function addQuestion(question: Question) {
+  // Adding question at beginning of array for easy development purposes
+  question.id = getNextId()
   questions.unshift(question)
 }
+
+const getNextId = () => Math.max(...questions.map(q => q.id)) + 1
