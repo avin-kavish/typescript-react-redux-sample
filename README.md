@@ -16,6 +16,7 @@
 ## Extras
  
  - [x] Backend api with express and nodeJs
+ - [x] Delete question functionality
  
 ## Development
 
@@ -31,7 +32,7 @@ A complete development environment is setup using babel, webpack and typescript 
  2. In the root directory, run `npm install`
  3. In two separate console windows, run `npm run serve:client` and `npm run serve:server`
 
-**Note: Tested only on Linux on latest versions of Firefox and Chrome**
+**Note: Tested on Linux on latest versions of Firefox and Chrome. Not tested on Windows**
 
 ## Style Guide
 
