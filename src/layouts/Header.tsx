@@ -41,7 +41,7 @@ function Notifications() {
           <svg
               viewBox="0 0 24 24"
               xmlns="http://www.w3.org/2000/svg"
-              css={css`position: absolute; top: 0px; right: -6px; width:15px; height: 15px;`}
+              css={bellSvgCss}
           >
             <circle
                 cx="12"
@@ -92,4 +92,12 @@ const StyledHeader = styled.header`
 
 const LogoImg = styled.img`
   max-width: 100%;
+`
+
+const bellSvgCss = css`
+  position: absolute;
+  top: 0;
+  right: -6px;
+  width:15px;
+  height: 15px;
 `

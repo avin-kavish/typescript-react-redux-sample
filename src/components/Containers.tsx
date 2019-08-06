@@ -29,6 +29,7 @@ export const Card = styled.div<{ noPadding?: boolean }>`
   border-radius: 12px;
   background-color: white;
   padding: ${props => props.noPadding ? 0 : 24}px;
+  box-shadow: 0 5px 8px 0 rgba(0,0,0,0.03);
 `
 
 export const Centered = styled.div`
@@ -42,7 +43,7 @@ export function LoadingScreen({ className }: { className?: string }) {
 
   return (
       <Centered className={className}>
-        <FontAwesomeIcon icon={faSpinner} spin />
+        <FontAwesomeIcon icon={faSpinner} pulse />
       </Centered>
   )
 }

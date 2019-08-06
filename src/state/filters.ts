@@ -16,7 +16,6 @@ export const fetchFilters = createAsyncAction(
     'FETCH_FILTERS_CANCEL'
 )<null, Filters, Error, string>()
 
-const {request: begin, success, failure, cancel} = fetchFilters
 const initialState: Filters = {
   license: [],
   category: [],
@@ -29,6 +28,7 @@ export default function reducer(state: Filters = initialState, action: FiltersAc
   return action.type === getType(success) ? action.payload : state;
 }
 
+const {request: begin, success, failure, cancel} = fetchFilters
 
 const fetchFiltersEpic: Epic<RootAction, RootAction, RootState> = (action$, store$) =>
     action$.pipe(

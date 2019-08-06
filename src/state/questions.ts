@@ -133,7 +133,7 @@ export default function reducer(state: QuestionState = initialState, action: Que
   }
 }
 
-const {create} = questionsCRUD
+const {create, delete: deleteQ} = questionsCRUD
 
 type QuestionEpic = Epic<QuestionActions, QuestionActions, RootState>
 
@@ -153,7 +153,7 @@ const addEpic: QuestionEpic = (action$, state$) =>
 
 const deleteEpic: QuestionEpic = (action$, state$) =>
     action$.pipe(
-        filter(isActionOf(questionsCRUD.delete)),
+        filter(isActionOf(deleteQ)),
         debugStream(),
         switchMap(action =>
             ajax.delete(`http://localhost:3000/questions/${action.payload.id}`)
